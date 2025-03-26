@@ -1,8 +1,8 @@
 const mongoose = require('mongoose')
 
 const JugadorSchema = new mongoose.Schema({
-  idUsuario: { type: Number, ref: 'Usuario', required: true },
-  idJuego: { type: Number, ref: 'Juego', required: true },
+  idUsuario: { type: mongoose.Schema.Types.ObjectId, ref: 'Usuarios', required: true },
+  idJuego: { type: mongoose.Schema.Types.ObjectId, ref: 'Juegos', required: true },
   saldo: { type: Number, required: true }
 });
 
