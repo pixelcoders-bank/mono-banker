@@ -22,6 +22,10 @@ app.use(cors({
 }));
 
 //Importar rutas
+app.use('/api/juegos', require('./routes/routesJuego'));
+app.use('/api/usuarios', require('./routes/routesUsuario'));
+app.use('/api/jugadores', require('./routes/routesJugador'));
+app.use('/api/transacciones', require('./routes/routesTransacciones')); 
 
 //Estados
 app.use((req, res, next) => {
