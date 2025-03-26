@@ -1,10 +1,13 @@
 const Transaccion = require('../models/Transaccion');
 const Jugador = require('../models/Jugador');
 
+const banca_id = "67e37dc5ae146eccd4457849";
+
+
 exports.registrarTransaccion = async (req, res) => {
     try{
         const{
-            idRemitente, idDestinatario, idJuego, tipo, monto
+            idRemitente, idDestinatario: idDestinatarioOriginal, idJuego, tipo, monto
         }=req.body
 
         if (!["cobro", "pago"].includes(tipo)){
@@ -12,10 +15,11 @@ exports.registrarTransaccion = async (req, res) => {
         }
 
         const remitente = await Jugador.findById(idRemitente)
-        const destinatario = await Jugador.findById(idDestinatario)
-        console.log(destinatario, remitente)
-        if(!remitente || !destinatario){
-            return res.status(404).json({message: "Remitente o destinatario no encontrados"});
+        let destinatario = await Jugador.findById(idDestinatarioOriginal)
+        let idDestinatario = idDestinatarioOriginal;
+
+        if (!remitente){
+            return res.status(400).json({message: "Remitente no encontrado"});
         }
 
         if (tipo === "pago" && idRemitente.saldo < monto){
@@ -27,15 +31,20 @@ exports.registrarTransaccion = async (req, res) => {
 
         if (tipo === "pago"){
             remitente.saldo -= monto;
-            destinatario.saldo += monto;
+            if (idDestinatario !== banca_id){
+                destinatario.saldo += monto;
+            }
         }else if(tipo === "cobro"){
             remitente.saldo += monto;
-            destinatario.saldo -= monto;
+            if (idDestinatario !== banca_id){
+                destinatario.saldo -= monto;
         }
 
         await remitente.save();
-        await destinatario.save();
-
+        if(idDestinatario !== banca_id){
+            await destinatario.save();
+        }
+        }
         res.status(201).json({message: "Transacción realizada exitosamente", nuevaTransaccion});
     }catch (error){
         console.error(error);
@@ -56,4 +65,3 @@ exports.obtenerTransacciones = async (req, res) => {
         res.status(500).json({message: "Error al obtener las transacciones", error: error.message});
     }
 };
-

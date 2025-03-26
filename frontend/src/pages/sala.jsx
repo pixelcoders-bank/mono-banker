@@ -1,51 +1,75 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/Autenticacion";
+import apiClient from "../api/axiosConfig";
+import Cookies from "js-cookie";
 
 const Sala = () => {
     const navigate = useNavigate();
+    const auth = useAuth();
     const [codigo, setCodigo] = useState("");
     const [jugadores, setJugadores] = useState([]);
     const [esHost, setEsHost] = useState(false);
+    const [estadoJuego, setEstadoJuego] = useState("pausa");
+
+    const obtenerDatosSala = async() => {
+        try {
+            
+            //Obtener datos de juego
+            const responseSala = await apiClient.get(
+            `/juegos/${auth.idSala}`
+            );
+            if (responseSala.status !== 200) {
+            throw new Error(responseSala.data.message);
+            }
+            setCodigo(responseSala.data.juego.codigo);
+            setEstadoJuego(responseSala.data.juego.estado);
+            setEsHost(responseSala.data.juego.idHost === auth.user.id);
+            
+            //Obtener datos de jugador
+            const responseJugadores = await apiClient.get(
+            `jugadores/juego/${responseSala.data.juego._id}`
+            );
+
+            if (responseJugadores.status !== 200) {
+            throw new Error(responseJugadores.data.message);
+            }
+
+            
+            //ocultar datos innecesarios.
+            const jugadoresClean = responseJugadores.data.jugadores.map((jugador) => ({
+                idJugador: jugador._id,
+                idUsuario: jugador.idUsuario._id,
+                nombre: jugador.idUsuario.nombre,
+                saldo: jugador.saldo
+            }));
+            setJugadores(jugadoresClean);
+
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Hubo un problema al cargar los datos de la sala.");
+        }
+    };  
 
     useEffect(() => {
-        // Recuperar el código generado en JuegoCod.jsx
-        const codigoGuardado = JSON.parse(localStorage.getItem("codigoPartida"))?.codigo || "";
-        const jugadoresGuardados = JSON.parse(localStorage.getItem("jugadores")) || [];
-        const hostGuardado = localStorage.getItem("host");
+        obtenerDatosSala();
 
-        setCodigo(codigoGuardado);
-        setJugadores(jugadoresGuardados);
-        
-        // El primer jugador es el host
-        if (jugadoresGuardados.length === 0) {
-            localStorage.setItem("host", "Jugador 1");
-            setEsHost(true);
-        } else {
-            setEsHost(hostGuardado === `Jugador ${jugadoresGuardados.length + 1}`);
-        }
+        // Configurar polling 5s
+        const intervalo = setInterval(obtenerDatosSala, 5000);
+
+        // Limpiar el intervalo
+        return () => clearInterval(intervalo);
     }, []);
 
-    const agregarJugador = () => {
-        if (jugadores.length >= 6) {
-            alert("Máximo de 6 jugadores alcanzado.");
-            return;
-        }
+    useEffect(() => {
+        obtenerDatosSala();
 
-        const nuevoJugador = {
-            nombre: `Jugador ${jugadores.length + 1}`,
-            caja: 1500,
-        };
+        // Configurar polling 5s
+        const intervalo = setInterval(obtenerDatosSala, 5000);
 
-        const nuevaLista = [...jugadores, nuevoJugador];
-        setJugadores(nuevaLista);
-        localStorage.setItem("jugadores", JSON.stringify(nuevaLista));
-
-        if (nuevaLista.length === 1) {
-            localStorage.setItem("host", nuevoJugador.nombre);
-            setEsHost(true);
-        }
-    };
-
+        // Limpiar el intervalo
+        return () => clearInterval(intervalo);
+    }, []);
     const iniciarJuego = () => {
         if (jugadores.length < 2) {
             alert("Se necesitan al menos 2 jugadores para iniciar.");
@@ -53,7 +77,7 @@ const Sala = () => {
         }
 
         alert("¡El juego ha comenzado!");
-        navigate("/movimiento");
+        navigate("/movimientos");
     };
 
     return (
@@ -80,16 +104,10 @@ const Sala = () => {
                 {jugadores.map((jugador, index) => (
                     <div key={index} className="flex justify-between border-t border-black py-2 text-black">
                         <span>{jugador.nombre}</span>
-                        <span>${jugador.caja}</span>
+                        <span>${jugador.saldo}</span>
                     </div>
                 ))}
 
-                <button
-                    onClick={agregarJugador}
-                    className="mt-4 bg-black text-white px-4 py-2 rounded-md w-full hover:bg-gray-800"
-                >
-                    Agregar Jugador
-                </button>
             </div>
 
             {/* Mostrar botón solo si es el host */}

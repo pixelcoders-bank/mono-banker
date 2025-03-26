@@ -1,24 +1,72 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/Autenticacion";
+import apiClient from "../api/axiosConfig";
+import Cookies from "js-cookie";
 
 const JuegoCod = () => {
     const [codigo, setCodigo] = useState("");
     const navigate = useNavigate();
+    const auth = useAuth();
 
-    // Generar un código de sala aleatorio al cargar la página
-    useEffect(() => {
-        const nuevoCodigo = Math.random().toString(36).substr(2, 6).toUpperCase();
-        setCodigo(nuevoCodigo);
-        localStorage.setItem("codigoPartida", JSON.stringify({ codigo: nuevoCodigo }));
-    }, []);
-
-    const handleIngresar = () => {
-        if (codigo.trim()) {
-            navigate(`/sala?codigo=${codigo}`); // Redirige a la sala con el código generado
-        } else {
-            alert("Por favor, ingresa un código válido.");
-        }
+    const handleChange = (e) => {
+        setCodigo(e.target.value);
     };
+
+    const handleIngresarSala = async () => {
+        try {
+            if (!Cookies.get("session")) {
+                alert("Debes iniciar sesión para ingresar a una sala.");
+                navigate("/");
+                return;
+            }
+
+            if (codigo.trim()) {
+              const responseSala = await apiClient.get(
+                `/juegos/codigo/${codigo}`
+              );
+
+              if (responseSala.status !== 200) {
+                throw new Error(responseSala.data.message);
+              }
+
+              await handleJugador(responseSala.data.juego._id); // Agregar al jugador al juego
+
+              //Guardar id de la sala
+              auth.setIdSala(responseSala.data.juego._id);
+              Cookies.set("idSala", responseSala.data.juego._id);
+              
+              navigate(`/sala?codigo=${codigo}`); // Redirige a la sala con el código generado
+            } else {
+                alert("Por favor, ingresa un código válido.");
+            }
+        } catch (error) {
+            console.error(error.message);
+            alert("Hubo un error al agregar el jugador");
+        }
+        
+    };
+
+    const handleJugador = async (idJuego) => {
+        try {
+            const responseJugador = await apiClient.post("/jugadores/registro", {
+                idUsuario: auth.user.id || Cookies.get("id"),
+                idJuego,
+                saldo: 1500
+            });
+
+            
+          if(responseJugador.status !== 201) {
+            if(responseJugador.status !== 200) {
+            throw new Error(responseJugador.data.message)
+            }
+          }
+        }
+        catch (error) {
+            console.error(error.message);
+            alert("Hubo un error al agregar el jugador");
+        }
+    }
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 px-4">
@@ -33,12 +81,12 @@ const JuegoCod = () => {
                 <input
                     type="text"
                     value={codigo}
-                    readOnly
+                    onChange={handleChange}
                     className="w-full p-2 border rounded-lg text-center mb-4 text-black border-black"
                 />
 
                 <button
-                    onClick={handleIngresar}
+                    onClick={handleIngresarSala}
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition"
                 >
                     Ingresar a la sala

@@ -8,7 +8,7 @@ exports.registrarJugador = async (req, res) => {
 
         const jugadorExistente = await Jugador.findOne({idUsuario, idJuego});
         if(jugadorExistente){
-            return res.status(400).json({ message: "El jugador ya está registrado en este juego" });
+            return res.status(200).json({ message: "El jugador ya está registrado en este juego" });
         }
 
         const nuevoJugador = new Jugador ({idUsuario, idJuego, saldo});
@@ -64,5 +64,22 @@ exports.actualizarSaldo = async (req, res) => {
     }catch(error){
         console.error(error);
         res.status(500).json({message: "Error al actualizar el saldo", error});
+    }
+};
+
+exports.obtenerJugadoresPorJuego = async (req, res) => {
+    try {
+        const { idJuego } = req.params;
+        
+        const jugadores = await Jugador.find({ idJuego }).populate('idUsuario');
+
+        if (jugadores.length === 0) {
+            return res.status(404).json({ mensaje: 'No hay jugadores en esta partida' });
+        }
+
+        res.status(200).json({ mensaje: 'Jugadores obtenidos exitosamente', cantidad: jugadores.length, jugadores });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ mensaje: 'Error en el servidor', error: error.message });
     }
 };
