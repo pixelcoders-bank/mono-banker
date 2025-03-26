@@ -4,7 +4,8 @@ const mongoose = require('mongoose');
 exports.conectarBD = async () => {
     try {
         await mongoose.connect(process.env.MONGO_URI,{
-            
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
         }).then(con =>{
             console.log(`Base de datos conectada a MongoDB Atlas con el servidor: ${con.connection.host}`);})
         
