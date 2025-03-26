@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/Autenticacion";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -9,15 +10,7 @@ const Login = () => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-
-  const demoUsers = [
-    { 
-      email: "usuario@ejemplo.com", 
-      password: "123456", 
-      name: "Usuario Demo",
-      avatar: "https://i.pravatar.cc/150?img=3"
-    }
-  ];
+  const auth = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -54,23 +47,14 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const user = demoUsers.find(
-        u => u.email === formData.email && u.password === formData.password
-      );
+      const infoLogin = {
+        correo: formData.email,
+        contrasena: formData.password,
+      };
+    
+      await auth.loginAction(infoLogin);
 
-      if (user) {
-        localStorage.setItem("authToken", "demo-token-" + Math.random().toString(36).substr(2));
-        localStorage.setItem("user", JSON.stringify({
-          name: user.name,
-          email: user.email,
-          avatar: user.avatar
-        }));
-        navigate("/home");
-      } else {
-        setError("Credenciales incorrectas");
-      }
+      
     } catch (err) {
       setError("Ocurrió un error. Por favor intenta nuevamente.");
     } finally {

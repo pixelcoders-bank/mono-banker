@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import apiClient from "../api/axiosConfig";
 
 const Registro = () => {
     const [usuario, setUsuario] = useState({ nombre: '', email: '', password: '' });
@@ -10,28 +11,36 @@ const Registro = () => {
         setUsuario({ ...usuario, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
 
         // Obtener usuarios almacenados en localStorage
-        const usuariosGuardados = JSON.parse(localStorage.getItem('usuarios')) || [];
+        try {
+            const response = await apiClient.post("/usuarios/registro", {
+                nombre: usuario.nombre,
+                correo: usuario.email,
+                contrasena: usuario.password,
+              });
 
         // Verificar si el correo ya está registrado
-        const usuarioExistente = usuariosGuardados.find(user => user.email === usuario.email);
-        if (usuarioExistente) {
-            alert('El correo ya está registrado. Usa otro o inicia sesión.');
-            setLoading(false);
-            return;
-        }
-
-        // Guardar el nuevo usuario en localStorage
-        usuariosGuardados.push(usuario);
-        localStorage.setItem('usuarios', JSON.stringify(usuariosGuardados));
+        if(response.status !== 201) {
+            throw new Error(response.data.message)
+          }
 
         alert('Usuario registrado correctamente');
         setLoading(false);
         navigate('/');
+    } catch (err) {
+
+        if (err) {
+          alert(
+            err.message || "Error extraño al iniciar sesión"
+          );
+        } else {
+          alert("Error al conectar con el servidor");
+        }
+      }
     };
 
     return (
