@@ -15,7 +15,6 @@ const Registro = () => {
         e.preventDefault();
         setLoading(true);
 
-        // Obtener usuarios almacenados en localStorage
         try {
             const response = await apiClient.post("/usuarios/registro", {
                 nombre: usuario.nombre,

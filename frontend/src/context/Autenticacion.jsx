@@ -10,7 +10,8 @@ const Autenticacion = ({ children }) => {
     nombre: Cookies.get("nombre") || "",
     id: Cookies.get("id") || "",
   });
-
+  const [idSala, setIdSala] = useState(
+    Cookies.get("idSala") || "");
   const [token, setToken] = useState(Cookies.get("session") || "");
 
   const navigate = useNavigate();
@@ -22,6 +23,7 @@ const Autenticacion = ({ children }) => {
     if (response.status === 200) {
       setUser({
         nombre: `${usuario.nombre}`,
+        id: `${usuario._id}`,
       });
 
       Cookies.set("id", `${usuario._id}`, { expires: 2 });
@@ -48,7 +50,7 @@ const Autenticacion = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, loginAction, logOut }}>
+        <AuthContext.Provider value={{ user, token, idSala, loginAction, logOut, setIdSala }}>
           {children}
         </AuthContext.Provider>
       );
