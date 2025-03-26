@@ -69,7 +69,7 @@ const JuegoCod = () => {
     }
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 px-4">
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md px-4">
             <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md text-center border border-black">
                 <h1 className="text-2xl font-bold text-red-600">MONOPOLY</h1>
                 <h2 className="text-lg text-red-500 mb-4">Banquero</h2>

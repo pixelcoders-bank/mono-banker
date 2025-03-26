@@ -17,7 +17,7 @@ const Movimiento = () => {
 
     const handleSeleccionEntidad = (nombre) => {
         setEntidad(nombre);
-        if (nombre === "J1") {
+        if (nombre === "J2") {
             setMostrarLista(!mostrarLista); // Solo cambia si se selecciona J1
         } else {
             setMostrarLista(false); // Oculta la lista si se elige otro jugador
@@ -40,116 +40,127 @@ const Movimiento = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
-            <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md text-center">
-                <h1 className="text-2xl font-bold text-red-600">MONOPOLY</h1>
-                <h2 className="text-lg text-red-500 mb-4">Banquero</h2>
-                <hr className="mb-4" />
+    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-sm px-4">
+    <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md text-center border border-black">
+    {/* Encabezado */}
+    <h1 className="text-xl font-bold text-red-600">MONOPOLY</h1>
+    <h2 className="text-md text-red-500 mb-3">Banquero</h2>
+    <hr className="mb-3 border-gray-300" />
 
-                <div className="mb-4">
-                    <p className="text-red-600 font-bold">Turno</p>
-                    <div className="flex justify-between">
-                        <span className="bg-gray-200 px-4 py-2 rounded text-black">{jugador}</span>
-                        <span className="bg-gray-200 px-4 py-2 rounded text-black">Saldo: ${saldo}</span>
-                    </div>
-                </div>
+    {/* Sección de Turno */}
+    <div className="mb-3">
+    <p className="text-red-600 font-bold text-sm">Turno</p>
+    <div className="flex justify-between text-sm">
+        <span className="bg-gray-200 px-3 py-1 rounded text-black">{jugador}</span>
+        <span className="bg-gray-200 px-3 py-1 rounded text-black">Saldo: ${saldo}</span>
+    </div>
+    </div>
 
-                <p className="text-red-600 font-bold">Movimiento</p>
+    {/* Sección de Movimiento */}
+    <p className="text-red-600 font-bold text-sm mb-2">Movimiento</p>
 
-                {/* Botones de jugadores con lista desplegable */}
-                <div className="mb-4 relative">
-                    <p className="text-gray-700">Elegir entidad:</p>
-                    <div className="flex justify-center gap-4">
-                        <button
-                            onClick={() => handleSeleccionEntidad("J1")}
-                            className={`w-12 h-12 rounded-full border ${entidad === "J1" ? "bg-gray-300" : "bg-white"}`}
-                        >
-                            J1
-                        </button>
-                        <button
-                            onClick={() => handleSeleccionEntidad("J2")}
-                            className={`w-12 h-12 rounded-full border ${entidad === "J2" ? "bg-gray-300" : "bg-white"}`}
-                        >
-                            J2
-                        </button>
-                    </div>
+    {/* Selector de Entidad */}
+    <div className="mb-3 relative">
+  <p className="text-gray-700 text-sm">Entidad:</p>
+  <div className="flex justify-center gap-3 mt-1">
+    <button
+      onClick={() => handleSeleccionEntidad("J1")}
+      className={`w-10 h-10 rounded-full border-2 text-sm flex items-center justify-center ${
+        entidad === "J1" ? "bg-black text-white" : "bg-black text-white"
+      }`}
+    >
+      J1
+    </button>
+    <button
+      onClick={() => handleSeleccionEntidad("J2")}
+      className={`w-10 h-10 rounded-full border-2 text-sm flex items-center justify-center ${
+        entidad === "J2" ? "bg-black text-white" : "bg-black text-white"
+      }`}
+    >
+      J2
+    </button>
+  </div>
 
-                    {/* Lista desplegable solo para J1 */}
-                    {entidad === "J1" && mostrarLista && (
-                        <div className="absolute top-16 left-1/2 transform -translate-x-1/2 bg-white border rounded shadow-lg w-40 p-2">
-                            <p className="text-gray-700 font-semibold">Opciones de J1:</p>
-                            <ul className="text-gray-600">
-                                <li className="p-2 hover:bg-gray-100 cursor-pointer">Opción 1</li>
-                                <li className="p-2 hover:bg-gray-100 cursor-pointer">Opción 2</li>
-                                <li className="p-2 hover:bg-gray-100 cursor-pointer">Opción 3</li>
-                            </ul>
-                        </div>
-                    )}
-                </div>
-
-                <div className="mb-4">
-                    <p className="text-gray-700">Elegir tipo de movimiento:</p>
-                    <div className="flex justify-center gap-4">
-                        <button
-                            onClick={() => handleMovimiento("cobro")}
-                            className={`px-4 py-2 rounded-lg text-white ${movimiento === "cobro" ? "bg-green-600" : "bg-green-500"} hover:bg-green-700`}
-                        >
-                            Cobro
-                        </button>
-                        <button
-                            onClick={() => handleMovimiento("pago")}
-                            className={`px-4 py-2 rounded-lg text-white ${movimiento === "pago" ? "bg-red-600" : "bg-red-500"} hover:bg-red-700`}
-                        >
-                            Pago
-                        </button>
-                    </div>
-                </div>
-
-                <div className="mb-4">
-                    <label className="block text-gray-700 font-medium mb-2">Ingresar valor:</label>
-                    <input
-                        type="number"
-                        value={valor}
-                        onChange={(e) => setValor(e.target.value)}
-                        placeholder="$ ---"
-                        className="w-full p-2 border rounded-lg text-center"
-                    />
-                </div>
-
-                <button
-                    onClick={handleRegistrar}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition mb-4"
-                >
-                    Registrar
-                </button>
-
-                <div className="grid grid-cols-2 gap-2">
-                    <button 
-                        className="bg-gray-500 hover:bg-gray-600 text-white py-2 rounded"
-                        onClick={() => navigate("/home")} 
-                    >
-                        Terminar turno
-                    </button>
-                    <button 
-                        className="bg-gray-500 hover:bg-gray-600 text-white py-2 rounded"
-                        onClick={() => navigate("/saldo_jugador")}
-                    >
-                        Saldo de jugadores
-                    </button>
-                    <button 
-                        className="bg-gray-500 hover:bg-gray-600 text-white py-2 rounded"
-                        onClick={handleBancarrota}
-                    >
-                        Declarar bancarrota
-                    </button>
-                    <button className="bg-gray-500 hover:bg-gray-600 text-white py-2 rounded"
-                            onClick={() => navigate("/Historial")}
-                    >
-                        Historial
-                    </button>
-                </div>
-            </div>
+      {/* Lista desplegable J1 */}
+    {entidad === "J2" && mostrarLista && (
+        <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 bg-white border border-gray-300 rounded-md shadow-lg w-32 z-50 overflow-hidden">
+        <p className="text-gray-700 font-semibold px-1">Opciones J2:</p>
+        <ul>
+        <li className="p-2 hover:bg-gray-200 text-black cursor-pointer">Opción 1</li>
+        <li className="p-2 hover:bg-gray-200 text-black cursor-pointer">Opción 2</li>
+        </ul>
         </div>
+    )}
+    </div>
+
+    {/* Tipo de Movimiento */}
+    <div className="mb-3">
+      <p className="text-gray-700 text-sm">Tipo:</p>
+      <div className="flex justify-center gap-3 mt-1">
+        <button
+          onClick={() => handleMovimiento("cobro")}
+          className={`px-3 py-1 rounded text-sm text-white ${movimiento === "cobro" ? "bg-green-600" : "bg-green-500"}`}
+        >
+          Cobro
+        </button>
+        <button
+          onClick={() => handleMovimiento("pago")}
+          className={`px-3 py-1 rounded text-sm text-white ${movimiento === "pago" ? "bg-red-600" : "bg-red-500"}`}
+        >
+          Pago
+        </button>
+      </div>
+    </div>
+
+    {/* Valor */}
+    <div className="mb-3">
+      <label className="block text-gray-700 text-sm mb-1">Valor:</label>
+      <input
+        type="number"
+        value={valor}
+        onChange={(e) => setValor(e.target.value)}
+        placeholder="$ ---"
+        className="w-full p-1 border rounded text-center text-sm"
+      />
+    </div>
+
+    {/* Botón Principal */}
+    <button
+      onClick={handleRegistrar}
+      className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-1 px-3 rounded mb-3"
+    >
+      Registrar
+    </button>
+
+    {/* Botones Secundarios */}
+    <div className="grid grid-cols-2 gap-2 text-sm">
+      <button 
+        className="bg-gray-500 hover:bg-gray-600 text-white py-1 rounded"
+        onClick={() => navigate("/home")} 
+      >
+        Terminar turno
+      </button>
+      <button 
+        className="bg-gray-500 hover:bg-gray-600 text-white py-1 rounded"
+        onClick={() => navigate("/saldos")}
+      >
+        Saldos
+      </button>
+      <button 
+        className="bg-gray-500 hover:bg-gray-600 text-white py-1 rounded"
+        onClick={handleBancarrota}
+      >
+        Bancarrota
+      </button>
+      <button 
+        className="bg-gray-500 hover:bg-gray-600 text-white py-1 rounded"
+        onClick={() => navigate("/Historial")}
+      >
+        Historial
+      </button>
+    </div>
+  </div>
+</div>
     );
 };
 

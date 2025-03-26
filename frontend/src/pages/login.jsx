@@ -118,11 +118,6 @@ const Login = () => {
           </button>
         </form>
 
-        <div className="mt-6 text-center text-sm text-gray-600">
-          <p className="mb-2">Usuario demo:</p>
-          <p className="font-mono bg-gray-100 p-2 rounded">usuario@ejemplo.com / 123456</p>
-        </div>
-
         <div className="mt-8 text-center">
           <p className="text-gray-600">
             ¿No tienes una cuenta?{" "}

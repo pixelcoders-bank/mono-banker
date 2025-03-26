@@ -81,7 +81,8 @@ const Sala = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-6">
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md px-4">
+            <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md text-center border border-black">
             <h1 className="text-3xl font-bold text-red-600">MONOPOLY</h1>
             <p className="text-3xl font-bold text-red-600">Banquero</p>
             <hr className="w-full max-w-md border-gray-300 mb-4" />
@@ -121,6 +122,7 @@ const Sala = () => {
             ) : (
                 <p className="mt-6 text-lg font-medium text-gray-700">Esperando a que el host inicie la partida...</p>
             )}
+        </div>
         </div>
     );
 };

@@ -5,9 +5,11 @@ import Register from "./pages/register";
 import Home from "./pages/home";
 import Sala from "./pages/sala";
 import Autenticacion from "./context/Autenticacion";
-import Guardia from "./context/Guardia"
-import JuegoCod from "./pages/juegocod"
+import Guardia from "./context/Guardia";
+import JuegoCod from "./pages/juegocod";
 import Movimiento from "./pages/movimiento";
+import SaldoJugador from "./pages/saldos";
+import Historial from "./pages/historial";
 
 
 const App = () => {
@@ -24,6 +26,8 @@ const App = () => {
           <Route path="/movimientos" element={<Movimiento />}></Route>
           <Route path="/home" element={<Home />} />
           <Route path="/sala" element={<Sala />} />
+          <Route path="/saldos" element={<SaldoJugador />} />
+          <Route path="/historial" element={<Historial />} />
           </Route>
         </Routes>
         </Autenticacion>
