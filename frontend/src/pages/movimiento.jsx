@@ -7,6 +7,7 @@ const Movimiento = () => {
     const [entidad, setEntidad] = useState("");
     const [movimiento, setMovimiento] = useState("");
     const [valor, setValor] = useState("");
+    const [mostrarLista, setMostrarLista] = useState(false);
 
     const navigate = useNavigate();
 
@@ -14,19 +15,28 @@ const Movimiento = () => {
         setMovimiento(tipo);
     };
 
+    const handleSeleccionEntidad = (nombre) => {
+        setEntidad(nombre);
+        if (nombre === "J1") {
+            setMostrarLista(!mostrarLista); // Solo cambia si se selecciona J1
+        } else {
+            setMostrarLista(false); // Oculta la lista si se elige otro jugador
+        }
+    };
+
     const handleRegistrar = () => {
         if (valor && entidad && movimiento) {
             alert(`Movimiento registrado: ${movimiento} de ${valor} para ${entidad}`);
-            setValor(""); // Limpiar el valor después del registro
+            setValor(""); 
         } else {
             alert("Por favor, completa todos los campos.");
         }
     };
 
     const handleBancarrota = () => {
-        setSaldo(0); // Deja el saldo en ceros
+        setSaldo(0);
         alert(`${jugador} ha sido declarado en bancarrota. Su saldo ahora es $0 y su partida ha terminado.`);
-        navigate("/home"); // Redirigir a la página de inicio
+        navigate("/home");
     };
 
     return (
@@ -46,22 +56,35 @@ const Movimiento = () => {
 
                 <p className="text-red-600 font-bold">Movimiento</p>
 
-                <div className="mb-4">
+                {/* Botones de jugadores con lista desplegable */}
+                <div className="mb-4 relative">
                     <p className="text-gray-700">Elegir entidad:</p>
                     <div className="flex justify-center gap-4">
                         <button
-                            onClick={() => setEntidad("J1")}
+                            onClick={() => handleSeleccionEntidad("J1")}
                             className={`w-12 h-12 rounded-full border ${entidad === "J1" ? "bg-gray-300" : "bg-white"}`}
                         >
                             J1
                         </button>
                         <button
-                            onClick={() => setEntidad("J2")}
+                            onClick={() => handleSeleccionEntidad("J2")}
                             className={`w-12 h-12 rounded-full border ${entidad === "J2" ? "bg-gray-300" : "bg-white"}`}
                         >
                             J2
                         </button>
                     </div>
+
+                    {/* Lista desplegable solo para J1 */}
+                    {entidad === "J1" && mostrarLista && (
+                        <div className="absolute top-16 left-1/2 transform -translate-x-1/2 bg-white border rounded shadow-lg w-40 p-2">
+                            <p className="text-gray-700 font-semibold">Opciones de J1:</p>
+                            <ul className="text-gray-600">
+                                <li className="p-2 hover:bg-gray-100 cursor-pointer">Opción 1</li>
+                                <li className="p-2 hover:bg-gray-100 cursor-pointer">Opción 2</li>
+                                <li className="p-2 hover:bg-gray-100 cursor-pointer">Opción 3</li>
+                            </ul>
+                        </div>
+                    )}
                 </div>
 
                 <div className="mb-4">
@@ -107,7 +130,8 @@ const Movimiento = () => {
                     >
                         Terminar turno
                     </button>
-                    <button className="bg-gray-500 hover:bg-gray-600 text-white py-2 rounded"
+                    <button 
+                        className="bg-gray-500 hover:bg-gray-600 text-white py-2 rounded"
                         onClick={() => navigate("/saldo_jugador")}
                     >
                         Saldo de jugadores
@@ -118,7 +142,9 @@ const Movimiento = () => {
                     >
                         Declarar bancarrota
                     </button>
-                    <button className="bg-gray-500 hover:bg-gray-600 text-white py-2 rounded">
+                    <button className="bg-gray-500 hover:bg-gray-600 text-white py-2 rounded"
+                            onClick={() => navigate("/Historial")}
+                    >
                         Historial
                     </button>
                 </div>
@@ -128,6 +154,4 @@ const Movimiento = () => {
 };
 
 export default Movimiento;
-
-
 

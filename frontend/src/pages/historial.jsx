@@ -20,7 +20,8 @@ const Historial = () => {
                 <h2 className="text-lg text-red-500 mb-4">Banquero</h2>
                 <hr className="mb-4 border-gray-400" />
 
-                <h3 className="text-lg font-bold text-red-600">Historial</h3>
+                <h3 className="text-lg font-bold text-black">Historial</h3>
+
 
                 {/* Tabla del historial */}
                 <div className="mt-4 border border-black rounded-lg p-3 bg-white">
