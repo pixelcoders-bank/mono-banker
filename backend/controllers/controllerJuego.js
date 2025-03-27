@@ -3,9 +3,9 @@ const Juego = require('../models/Juego');
 // Crear juego
 exports.crearJuego = async (req, res) =>{
     try {
-        const { idHost, estado, turno, codigo } = req.body;
+        const { idHost, estado, turnoJugador, codigo } = req.body;
         // Validar los datos 
-        if (!idHost || !estado || !turno || !codigo) {
+        if (!idHost || !estado || !turnoJugador || !codigo) {
             return res.status(400).json({ message: "Faltan campos obligatorios" });
         }
         
@@ -58,10 +58,10 @@ exports.obtenerJuegoPorCodigo = async (req, res) => {
 exports.actualizarJuego = async (req, res) => {
     try {
         const { id } = req.params;
-        const { estado, turno } = req.body;
+        const { estado, turnoJugador } = req.body;
 
         // Validar
-        if (!estado || !turno) {
+        if (!estado || !turnoJugador) {
             return res.status(400).json({ message: "Faltan campos obligatorios" });
         }
         const juegoActualizado = await Juego.findByIdAndUpdate(id, req.body, { new: true });

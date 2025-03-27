@@ -114,6 +114,29 @@ const Movimiento = () => {
           }
     };
 
+    const terminarTurno = async () => {
+
+    const indiceActual = jugadores.findIndex(jugador => jugador.idUsuario === jugadorTurno.idUsuario);
+    // Calcular el índice del siguiente jugador (circular)
+    const siguienteIndice = (indiceActual + 1) % jugadores.length;
+
+    const siguienteJugador = jugadores[siguienteIndice];
+
+      try {
+        const response = await apiClient.put(`/juegos/${auth.idSala}`, {
+          estado: "iniciado",
+          turnoJugador: siguienteJugador.idUsuario
+        });
+        if (response.status!== 200) {
+            throw new Error(response.data.message);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        alert("Hubo un problema al terminar el turno.");
+      }
+
+    }
+
     const handleBancarrota = () => {
         setSaldo(0);
         alert(`${jugador} ha sido declarado en bancarrota. Su saldo ahora es $0 y su partida ha terminado.`);
@@ -234,7 +257,7 @@ const Movimiento = () => {
     <div className="grid grid-cols-2 gap-2 text-sm">
       <button 
         className="bg-yellow-500 hover:bg-yellow-600 text-white py-1 rounded"
-        onClick={() => navigate("/home")} 
+        onClick={terminarTurno} 
       >
         Terminar turno
       </button>
