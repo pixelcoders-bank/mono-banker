@@ -57,6 +57,10 @@ const Home = () => {
             throw new Error(responseJugador.data.message)
           }
 
+            //Guardar id del jugador
+            auth.setIdJugador(responseJugador.data.jugador._id)
+            Cookies.set("idJugador", responseJugador.data.jugador._id);
+
           return responseJugador;
         }
         catch (error) {

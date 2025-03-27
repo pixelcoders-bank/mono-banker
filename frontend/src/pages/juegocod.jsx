@@ -30,7 +30,16 @@ const JuegoCod = () => {
                 throw new Error(responseSala.data.message);
               }
 
-              await handleJugador(responseSala.data.juego._id); // Agregar al jugador al juego
+              const cantidadJugadores = (await apiClient.get(`/jugadores/juego/${responseSala.data.juego._id}`)).data.cantidad
+              console.log(cantidadJugadores)
+
+              // Validar la cantidad maxima de jugadores
+             if ( cantidadJugadores < 8 ) {
+                 await handleJugador(responseSala.data.juego._id); // Agregar al jugador al juego
+             } else {
+                alert("La sala está llena. Prueba con otra sala.");
+                return
+             }
 
               //Guardar id de la sala
               auth.setIdSala(responseSala.data.juego._id);
@@ -60,6 +69,11 @@ const JuegoCod = () => {
             if(responseJugador.status !== 200) {
             throw new Error(responseJugador.data.message)
             }
+
+        //Guardar id del jugador
+          auth.setIdJugador(responseJugador.data.jugador._id)
+          Cookies.set("idJugador", responseJugador.data.jugador._id);
+            
           }
         }
         catch (error) {

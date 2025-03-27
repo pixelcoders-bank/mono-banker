@@ -12,6 +12,7 @@ const Autenticacion = ({ children }) => {
   });
   const [idSala, setIdSala] = useState(
     Cookies.get("idSala") || "");
+  const [idJugador, setIdJugador] = useState(Cookies.get("idSala") || "");
   const [token, setToken] = useState(Cookies.get("session") || "");
 
   const navigate = useNavigate();
@@ -50,7 +51,7 @@ const Autenticacion = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, idSala, loginAction, logOut, setIdSala }}>
+        <AuthContext.Provider value={{ user, token, idSala, idJugador, setIdJugador, loginAction, logOut, setIdSala }}>
           {children}
         </AuthContext.Provider>
       );

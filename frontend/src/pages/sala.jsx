@@ -10,7 +10,7 @@ const Sala = () => {
     const [codigo, setCodigo] = useState("");
     const [jugadores, setJugadores] = useState([]);
     const [esHost, setEsHost] = useState(false);
-    const [estadoJuego, setEstadoJuego] = useState("pausa");
+    const [estadoJuego, setEstadoJuego] = useState("esperando");
 
     const obtenerDatosSala = async() => {
         try {
@@ -61,24 +61,33 @@ const Sala = () => {
         return () => clearInterval(intervalo);
     }, []);
 
-    useEffect(() => {
-        obtenerDatosSala();
-
-        // Configurar polling 5s
-        const intervalo = setInterval(obtenerDatosSala, 5000);
-
-        // Limpiar el intervalo
-        return () => clearInterval(intervalo);
-    }, []);
-    const iniciarJuego = () => {
+    const iniciarJuego = async () => {
         if (jugadores.length < 2) {
-            alert("Se necesitan al menos 2 jugadores para iniciar.");
-            return;
+          alert("Se necesitan al menos 2 jugadores para iniciar.");
+          return;
+        }
+
+        const actualizarJuego = await apiClient.put(`/juegos/${auth.idSala}`, {
+          estado: "iniciado",
+          turno: auth.user.id,
+        });
+        if (actualizarJuego.status !== 200) {
+          throw new Error(actualizarJuego.data.message);
         }
 
         alert("¡El juego ha comenzado!");
         navigate("/movimientos");
     };
+
+    useEffect(() => {
+        //Si el juego ha comenzado dirige ala vista de movimientos
+        if (estadoJuego === "iniciado") {
+            alert("¡El juego ha comenzado!");
+            navigate("/movimientos");
+        }
+    }, [estadoJuego]);
+
+    //Abandonar sala
 
     return (
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md px-4">
