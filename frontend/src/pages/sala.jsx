@@ -69,7 +69,7 @@ const Sala = () => {
 
         const actualizarJuego = await apiClient.put(`/juegos/${auth.idSala}`, {
           estado: "iniciado",
-          turno: auth.user.id,
+          turnoJugador: auth.user.id,
         });
         if (actualizarJuego.status !== 200) {
           throw new Error(actualizarJuego.data.message);

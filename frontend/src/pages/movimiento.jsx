@@ -96,7 +96,7 @@ const Movimiento = () => {
           throw new Error(response.data.message)
           }
 
-          alert(`Movimiento registrado: ${movimiento} de ${valor} para ${entidad}`);
+          alert(`Movimiento registrado: ${movimiento} de ${valor} para ${entidad.nombre}`);
 
           } catch (err) {
 
@@ -137,12 +137,29 @@ const Movimiento = () => {
 
     }
 
-    const handleBancarrota = () => {
-        setSaldo(0);
-        alert(`${jugador} ha sido declarado en bancarrota. Su saldo ahora es $0 y su partida ha terminado.`);
+  const handleBancarrota = async () => {
+      try {
+        const response = await apiClient.put(`/jugadores/${jugador.idJugador}`, {
+            saldo: 0
+        });
+        
+        if (response.status!== 200) {
+            throw new Error(response.data.message);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        alert("Hubo un problema con el jugador.");
+        
         navigate("/home");
-    };
+    };}
 
+    useEffect(() => {
+      // Verificar si el saldo del jugador turno
+      if (jugadorTurno.saldo <= 0) {
+        // terminasu turno
+        terminarTurno();
+      }
+    }, [jugadorTurno]);
     return (
     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-sm px-4">
     <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md text-center border border-black">

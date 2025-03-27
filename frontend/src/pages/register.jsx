@@ -43,7 +43,7 @@ const Registro = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+        <div className="h-screen w-screen flex items-center justify-center bg-gray-100 px-4">
             <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md mx-auto">
                 <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Registro</h2>
 
