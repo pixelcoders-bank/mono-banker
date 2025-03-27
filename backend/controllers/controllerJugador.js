@@ -35,7 +35,7 @@ exports.obtenerJugadores = async (req, res) => {
 
 exports.obtenerJugadorPorId = async (req, res) => {
     try{
-        const jugador = await Jugador.findById(req.params.id).populate('idUsuario').populate('idJuego');
+        const jugador = await Jugador.findById(req.params.id).populate('idUsuario', 'id nombre').populate('idJuego');
         if(!jugador){
             return res.status(404).json({message: "Jugador no encontrado"})
         }
@@ -72,7 +72,7 @@ exports.obtenerJugadoresPorJuego = async (req, res) => {
     try {
         const { idJuego } = req.params;
         
-        const jugadores = await Jugador.find({ idJuego }).populate('idUsuario');
+        const jugadores = await Jugador.find({ idJuego }).populate('idUsuario', 'id nombre');
 
         if (jugadores.length === 0) {
             return res.status(404).json({ mensaje: 'No hay jugadores en esta partida' });

@@ -7,7 +7,7 @@ const banca_id = "67e37dc5ae146eccd4457849";
 exports.registrarTransaccion = async (req, res) => {
     try{
         const{
-            idRemitente, idDestinatario: idDestinatarioOriginal, idJuego, tipo, monto
+            idRemitente, idDestinatario: idDestinatarioOriginal, idJuego, tipo, monto, turno
         }=req.body
 
         if (idRemitente === idDestinatarioOriginal){
@@ -34,7 +34,7 @@ exports.registrarTransaccion = async (req, res) => {
             return res.status(400).json({message: "Saldo insuficiente para realizar la transacción"});
         }
 
-        const nuevaTransaccion = new Transaccion({idRemitente, idDestinatario, idJuego, tipo, monto});
+        const nuevaTransaccion = new Transaccion({idRemitente, idDestinatario, idJuego, tipo, monto, turno});
         await nuevaTransaccion.save();
 
         if (tipo === "pago"){
@@ -78,9 +78,18 @@ exports.obtenerTransaccionesPorJuego = async (req, res) => {
     try {
         const { idJuego } = req.params;
         const transacciones = await Transaccion.find({ idJuego })
-            .populate('idRemitente', 'idUsuario saldo')
-            .populate('idDestinatario', 'idUsuario saldo');
-
+          .populate({
+            path: "idRemitente",
+            populate: { path: "idUsuario", select: "nombre" },
+            select: "_id",
+          })
+          .populate({
+            path: "idDestinatario",
+            populate: { path: "idUsuario", select: "nombre" },
+            select: "_id",
+          })
+          .select("_id idRemitente idDestinatario tipo monto");
+          
         res.status(200).json(transacciones);
     } catch (error) {
         console.error(error);
