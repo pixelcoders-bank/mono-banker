@@ -50,8 +50,11 @@ const JuegoCod = () => {
                 alert("Por favor, ingresa un código válido.");
             }
         } catch (error) {
-            console.error(error.message);
-            alert("Hubo un error al agregar el jugador");
+            if (error.status === 404) {
+                alert("La sala no existe. Verifica el código e intenta de nuevo.");
+            } else {
+                alert("Hubo un error al agregar el jugador. Intenta nuevamente.");
+            }
         }
         
     };

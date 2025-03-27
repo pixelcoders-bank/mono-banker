@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "../api/axiosConfig";
 import Cookies from "js-cookie";
@@ -7,20 +7,33 @@ const AuthContext = createContext();
 
 const Autenticacion = ({ children }) => {
   const [user, setUser] = useState({
-    nombre: Cookies.get("nombre") || "",
+    nombre: Cookies.get("usuario") || "",
     id: Cookies.get("id") || "",
   });
   const [idSala, setIdSala] = useState(
     Cookies.get("idSala") || "");
-  const [idJugador, setIdJugador] = useState(Cookies.get("idSala") || "");
+  const [idJugador, setIdJugador] = useState(Cookies.get("idJugador") || "");
   const [token, setToken] = useState(Cookies.get("session") || "");
+  const [banca, setBanca] = useState({});
 
   const navigate = useNavigate();
+
+  const getBanca = async () => {
+    const response = await apiClient.get(`/jugadores/67e37dc5ae146eccd4457849`);
+      //ocultar datos innecesarios.
+      const bancaClean = {
+        idJugador: response.data._id,
+        idUsuario: response.data.idUsuario._id,
+        nombre: response.data.idUsuario.nombre,
+        saldo: response.data.saldo
+      };
+    setBanca(bancaClean);
+  };
 
   const loginAction = async (usuarioLogin) => {
     const response = await apiClient.post("/usuarios/login", usuarioLogin);
     
-    const usuario = response.data.usuario
+  const usuario = response.data.usuario
     if (response.status === 200) {
       setUser({
         nombre: `${usuario.nombre}`,
@@ -49,9 +62,13 @@ const Autenticacion = ({ children }) => {
     
     navigate("/");
     };
+  
+  useEffect(() => {
+    getBanca();
+  }, []);
 
     return (
-        <AuthContext.Provider value={{ user, token, idSala, idJugador, setIdJugador, loginAction, logOut, setIdSala }}>
+        <AuthContext.Provider value={{ user, token, banca, idSala, idJugador, getBanca, setIdJugador, loginAction, logOut, setIdSala }}>
           {children}
         </AuthContext.Provider>
       );

@@ -1,15 +1,74 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/Autenticacion";
+import apiClient from "../api/axiosConfig";
 
 const Movimiento = () => {
-    const [jugador, setJugador] = useState("Jugador 1");
-    const [saldo, setSaldo] = useState(1500);
-    const [entidad, setEntidad] = useState("");
+    const auth = useAuth();
+    const [jugador, setJugador] = useState({});
+    const [jugadores, setJugadores] = useState([]);
+    const [jugadorTurno, setJugadorTurno] = useState({});
+    const [saldo, setSaldo] = useState(0);
+    const [saldoTurno, setSaldoTurno] = useState(0);
+    const [entidad, setEntidad] = useState(auth.banca);
     const [movimiento, setMovimiento] = useState("");
     const [valor, setValor] = useState("");
     const [mostrarLista, setMostrarLista] = useState(false);
 
     const navigate = useNavigate();
+
+    //Separar
+    const obtenerDatosSala = async() => {
+      try {
+          
+          //Obtener datos de juego
+          const responseSala = await apiClient.get(
+          `/juegos/${auth.idSala}`
+          );
+          if (responseSala.status !== 200) {
+          throw new Error(responseSala.data.message);
+          }
+          
+          //Obtener datos de jugador
+          const responseJugadores = await apiClient.get(
+          `jugadores/juego/${responseSala.data.juego._id}`
+          );
+
+          if (responseJugadores.status !== 200) {
+          throw new Error(responseJugadores.data.message);
+          }
+
+          
+          //ocultar datos innecesarios.
+          const jugadoresClean = responseJugadores.data.jugadores.map((jugador) => ({
+              idJugador: jugador._id,
+              idUsuario: jugador.idUsuario._id,
+              nombre: jugador.idUsuario.nombre,
+              saldo: jugador.saldo
+          }));
+
+          //Seteo de estados
+          setJugadores(jugadoresClean);
+          setJugador(jugadoresClean.find(jugador => jugador.idUsuario  === auth.user.id ))
+          setJugadorTurno(jugadoresClean.find(jugador => jugador.idUsuario === responseSala.data.juego.turnoJugador));
+      } catch (error) {
+          console.error("Error:", error);
+          alert("Hubo un problema al cargar los datos de la sala.");
+      }
+  };
+
+  useEffect(() => {
+      obtenerDatosSala();
+
+      if(!entidad){
+        setEntidad(auth.banca)
+      }
+      // Configurar polling 5s
+      const intervalo = setInterval(obtenerDatosSala, 5000);
+
+      // Limpiar el intervalo
+      return () => clearInterval(intervalo);
+  }, []);
 
     const handleMovimiento = (tipo) => {
         setMovimiento(tipo);
@@ -17,20 +76,42 @@ const Movimiento = () => {
 
     const handleSeleccionEntidad = (nombre) => {
         setEntidad(nombre);
-        if (nombre === "J2") {
-            setMostrarLista(!mostrarLista); // Solo cambia si se selecciona J1
-        } else {
-            setMostrarLista(false); // Oculta la lista si se elige otro jugador
-        }
+        setMostrarLista(false);
     };
 
-    const handleRegistrar = () => {
+    const handleRegistrar = async () => {
         if (valor && entidad && movimiento) {
-            alert(`Movimiento registrado: ${movimiento} de ${valor} para ${entidad}`);
-            setValor(""); 
-        } else {
-            alert("Por favor, completa todos los campos.");
-        }
+          try {
+          const response = await apiClient.post("/transacciones", {
+            idRemitente: jugador.idJugador,
+            idDestinatario: entidad.idJugador,
+            idJuego: auth.idSala,
+            tipo: movimiento,
+            monto: parseInt(valor),
+            turno: 1
+          });
+
+          // Verificar si el correo ya está registrado
+          if(response.status !== 201) {
+          throw new Error(response.data.message)
+          }
+
+          alert(`Movimiento registrado: ${movimiento} de ${valor} para ${entidad}`);
+
+          } catch (err) {
+
+          if (err) {
+          alert(
+          err.message || "Error extraño registrar el movimiento"
+          );
+          } else {
+          alert("Error al conectar con el servidor");
+          }
+          }
+          
+          } else {
+          alert("Por favor, completa todos los campos.");
+          }
     };
 
     const handleBancarrota = () => {
@@ -51,8 +132,17 @@ const Movimiento = () => {
     <div className="mb-3">
     <p className="text-red-600 font-bold text-sm">Turno</p>
     <div className="flex justify-between text-sm">
-        <span className="bg-gray-200 px-3 py-1 rounded text-black">{jugador}</span>
-        <span className="bg-gray-200 px-3 py-1 rounded text-black">Saldo: ${saldo}</span>
+        <span className="bg-gray-200 px-3 py-1 rounded text-black">{jugadorTurno.nombre}</span>
+        <span className="bg-gray-200 px-3 py-1 rounded text-black">Saldo: ${jugadorTurno.saldo}</span>
+    </div>
+    </div>
+
+    {/* Sección de Turno */}
+    <div className="mb-3">
+    <p className="text-red-600 font-bold text-sm">Yo</p>
+    <div className="flex justify-between text-sm">
+        <span className="bg-gray-200 px-3 py-1 rounded text-black">{jugador.nombre}</span>
+        <span className="bg-gray-200 px-3 py-1 rounded text-black">Saldo: ${jugador.saldo}</span>
     </div>
     </div>
 
@@ -64,48 +154,54 @@ const Movimiento = () => {
   <p className="text-gray-700 text-sm">Entidad:</p>
   <div className="flex justify-center gap-3 mt-1">
     <button
-      onClick={() => handleSeleccionEntidad("J1")}
-      className={`w-10 h-10 rounded-full border-2 text-sm flex items-center justify-center ${
-        entidad === "J1" ? "bg-black text-white" : "bg-black text-white"
-      }`}
+      className={` rounded-full border-2 text-sm flex items-center justify-center bg-black text-white disabled:bg-gray-600`} disabled
     >
-      J1
+      {jugador.nombre}
     </button>
     <button
-      onClick={() => handleSeleccionEntidad("J2")}
-      className={`w-10 h-10 rounded-full border-2 text-sm flex items-center justify-center ${
-        entidad === "J2" ? "bg-black text-white" : "bg-black text-white"
-      }`}
-    >
-      J2
+      onClick={() => setMostrarLista(!mostrarLista)}
+      className={`rounded-full border-2 text-sm flex items-center justify-center bg-black text-white  disabled:bg-gray-600`}
+      disabled = {jugador.idJugador === jugadorTurno.idJugador? false : true }>
+      {entidad.nombre ? entidad.nombre : "Seleccionar"}
     </button>
   </div>
 
       {/* Lista desplegable J1 */}
-    {entidad === "J2" && mostrarLista && (
+    {mostrarLista && (
         <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 bg-white border border-gray-300 rounded-md shadow-lg w-32 z-50 overflow-hidden">
-        <p className="text-gray-700 font-semibold px-1">Opciones J2:</p>
+        <p className="text-gray-700 font-semibold px-1">Opciones:</p>
         <ul>
-        <li className="p-2 hover:bg-gray-200 text-black cursor-pointer">Opción 1</li>
-        <li className="p-2 hover:bg-gray-200 text-black cursor-pointer">Opción 2</li>
+        <li className="p-2 hover:bg-gray-200 text-black cursor-pointer"
+         onClick={() => handleSeleccionEntidad(auth.banca)}>{auth.banca.nombre}</li>
+        {jugadores.filter(jugador => jugador.idUsuario  !== auth.user.id).map((jugador) => (
+              <li
+                key={jugador.idJugador}
+                className="p-2 hover:bg-gray-200 text-black cursor-pointer"
+                onClick={() => handleSeleccionEntidad(jugador)}
+              >
+                {jugador.nombre}
+              </li>
+            ))}
         </ul>
         </div>
     )}
     </div>
 
     {/* Tipo de Movimiento */}
-    <div className="mb-3">
+    <div className="mb-3" >
       <p className="text-gray-700 text-sm">Tipo:</p>
       <div className="flex justify-center gap-3 mt-1">
         <button
           onClick={() => handleMovimiento("cobro")}
-          className={`px-3 py-1 rounded text-sm text-white ${movimiento === "cobro" ? "bg-green-600" : "bg-green-500"}`}
+          className={`px-3 py-1 rounded text-sm text-white ${movimiento === "cobro" ? "bg-green-900" : "bg-green-500"}  disabled:bg-gray-600`}
+          disabled = {jugador.idJugador === jugadorTurno.idJugador? false : true }
         >
           Cobro
         </button>
         <button
           onClick={() => handleMovimiento("pago")}
-          className={`px-3 py-1 rounded text-sm text-white ${movimiento === "pago" ? "bg-red-600" : "bg-red-500"}`}
+          className={`px-3 py-1 rounded text-sm text-white ${movimiento === "pago" ? "bg-red-900" : "bg-red-500"}  disabled:bg-gray-600`}
+          disabled = {jugador.idJugador === jugadorTurno.idJugador? false : true }
         >
           Pago
         </button>
@@ -120,14 +216,16 @@ const Movimiento = () => {
         value={valor}
         onChange={(e) => setValor(e.target.value)}
         placeholder="$ ---"
-        className="w-full p-1 border rounded text-center text-sm"
+        className="w-full px-2 py-1 border border-gray-300 rounded-md text-center text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        disabled = {jugador.idJugador === jugadorTurno.idJugador? false : true }
       />
     </div>
 
     {/* Botón Principal */}
     <button
       onClick={handleRegistrar}
-      className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-1 px-3 rounded mb-3"
+      className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-1 px-3 rounded mb-3  disabled:bg-gray-900"
+      disabled = {jugador.idJugador === jugadorTurno.idJugador? false : true }
     >
       Registrar
     </button>
@@ -135,25 +233,25 @@ const Movimiento = () => {
     {/* Botones Secundarios */}
     <div className="grid grid-cols-2 gap-2 text-sm">
       <button 
-        className="bg-gray-500 hover:bg-gray-600 text-white py-1 rounded"
+        className="bg-yellow-500 hover:bg-yellow-600 text-white py-1 rounded"
         onClick={() => navigate("/home")} 
       >
         Terminar turno
       </button>
       <button 
-        className="bg-gray-500 hover:bg-gray-600 text-white py-1 rounded"
+        className="bg-blue-800 hover:bg-blue-600 text-white py-1 rounded"
         onClick={() => navigate("/saldos")}
       >
         Saldos
       </button>
       <button 
-        className="bg-gray-500 hover:bg-gray-600 text-white py-1 rounded"
+        className="bg-red-800 hover:bg-red-900 text-white py-1 rounded"
         onClick={handleBancarrota}
       >
         Bancarrota
       </button>
       <button 
-        className="bg-gray-500 hover:bg-gray-600 text-white py-1 rounded"
+        className="bg-blue-800 hover:bg-blue-600 text-white py-1 rounded"
         onClick={() => navigate("/Historial")}
       >
         Historial

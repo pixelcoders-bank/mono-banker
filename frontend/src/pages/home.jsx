@@ -18,7 +18,7 @@ const Home = () => {
             idHost: Cookies.get("id"),
             codigo: codigo,
             estado: "pausa",
-            turno:"0"
+            turno: auth.user.id || Cookies.get("id")
           });
 
           if(responseSala.status !== 201) {

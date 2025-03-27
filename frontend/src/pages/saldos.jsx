@@ -21,8 +21,7 @@ const SaldoJugador = () => {
         const data = response.data;
 
         if (response.status === 200) {
-          setSaldos(data.jugadores); // 
-          console.error(" Error obteniendo jugadores:", data.mensaje);
+          setSaldos(data.jugadores);
         }
       } catch (error) {
         console.error("Error de red:", error);
