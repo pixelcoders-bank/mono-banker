@@ -54,3 +54,25 @@ exports.obtenerJuegoPorCodigo = async (req, res) => {
         res.status(500).json({ mensaje: 'Error en el servidor', error: error.message });
     }
 };
+
+exports.actualizarJuego = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { estado, turno } = req.body;
+
+        // Validar
+        if (!estado || !turno) {
+            return res.status(400).json({ message: "Faltan campos obligatorios" });
+        }
+        const juegoActualizado = await Juego.findByIdAndUpdate(id, req.body, { new: true });
+        
+        if (!juegoActualizado) {
+            return res.status(404).json({ message: "Partida no encontrada" });
+        }
+        
+        res.status(200).json({ mensaje: "Partida actualizada correctamente", juegoActualizado });
+        } catch (error) {
+        res.status(500).json({ mensaje: "Error en el servidor", error: error.message });
+    
+        }
+}

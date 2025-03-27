@@ -10,6 +10,10 @@ exports.registrarTransaccion = async (req, res) => {
             idRemitente, idDestinatario: idDestinatarioOriginal, idJuego, tipo, monto
         }=req.body
 
+        if (idRemitente === idDestinatarioOriginal){
+            return res.status(400).json({message: " No puedes enviarte dinero a ti mismo"});
+        }
+
         if (!["cobro", "pago"].includes(tipo)){
             return res.status(400).json({message: " Tipo de transacción invalido (debe ser 'cobro' o 'pago')"});
         }
@@ -20,6 +24,10 @@ exports.registrarTransaccion = async (req, res) => {
 
         if (!remitente){
             return res.status(400).json({message: "Remitente no encontrado"});
+        }
+
+        if(!destinatario && idDestinatario !== banca_id){
+            es.status(400).json({message: " Destinatario no encontrado"});
         }
 
         if (tipo === "pago" && idRemitente.saldo < monto){
@@ -63,5 +71,19 @@ exports.obtenerTransacciones = async (req, res) => {
     }catch(error){
         console.error(error);
         res.status(500).json({message: "Error al obtener las transacciones", error: error.message});
+    }
+};
+
+exports.obtenerTransaccionesPorJuego = async (req, res) => {
+    try {
+        const { idJuego } = req.params;
+        const transacciones = await Transaccion.find({ idJuego })
+            .populate('idRemitente', 'idUsuario saldo')
+            .populate('idDestinatario', 'idUsuario saldo');
+
+        res.status(200).json(transacciones);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error al obtener transacciones por juego", error: error.message });
     }
 };

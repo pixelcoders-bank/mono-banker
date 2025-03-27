@@ -8,13 +8,14 @@ exports.registrarJugador = async (req, res) => {
 
         const jugadorExistente = await Jugador.findOne({idUsuario, idJuego});
         if(jugadorExistente){
-            return res.status(200).json({ message: "El jugador ya está registrado en este juego" });
+            //Devuelve OK para evitar un error innecesario
+            return res.status(200).json({ message: "El jugador ya está registrado en este juego", jugador: jugadorExistente }); 
         }
 
         const nuevoJugador = new Jugador ({idUsuario, idJuego, saldo});
         await nuevoJugador.save();
 
-        res.status(201).json({message: "Jugador registrado exitosamente", nuevoJugador});
+        res.status(201).json({message: "Jugador registrado exitosamente", jugador: nuevoJugador});
 
     }catch (error){
         console.error(error);
@@ -79,6 +80,22 @@ exports.obtenerJugadoresPorJuego = async (req, res) => {
 
         res.status(200).json({ mensaje: 'Jugadores obtenidos exitosamente', cantidad: jugadores.length, jugadores });
     } catch (error) {
+        console.error(error);
+        res.status(500).json({ mensaje: 'Error en el servidor', error: error.message });
+        }
+    };
+exports.eliminarJugador = async (req, res) => {
+    try{
+        const { id } = req.params;
+        const jugador = await Jugador.findById(id);
+        if (!jugador){
+            res.status(404).json({ mensaje: 'Jugador no encontrado'});
+        }
+
+        await Jugador.findByIdAndDelete(id);
+
+        res.status(200).json({ mensaje:"Jugador eliminado exitosamente"});
+    }catch(error){
         console.error(error);
         res.status(500).json({ mensaje: 'Error en el servidor', error: error.message });
     }
