@@ -7,10 +7,14 @@ const banca_id = "67e37dc5ae146eccd4457849";
 exports.registrarTransaccion = async (req, res) => {
     try{
         const{
-            idRemitente, idDestinatario: idDestinatarioOriginal, idJuego, tipo, monto, turno
+            idRemitente, idDestinatario, idJuego, tipo, monto, turno
         }=req.body
 
-        if (idRemitente === idDestinatarioOriginal){
+        if (monto < 1){
+            return res.status(400).json({message: "No se admiten montos iguales o menores a 0 "});
+        }
+
+        if (idRemitente === idDestinatario){
             return res.status(400).json({message: " No puedes enviarte dinero a ti mismo"});
         }
 
@@ -19,19 +23,20 @@ exports.registrarTransaccion = async (req, res) => {
         }
 
         const remitente = await Jugador.findById(idRemitente)
-        let destinatario = await Jugador.findById(idDestinatarioOriginal)
-        let idDestinatario = idDestinatarioOriginal;
+        const destinatario = await Jugador.findById(idDestinatario)
 
         if (!remitente){
             return res.status(400).json({message: "Remitente no encontrado"});
         }
 
         if(!destinatario && idDestinatario !== banca_id){
-            es.status(400).json({message: " Destinatario no encontrado"});
+            res.status(400).json({message: "Destinatario no encontrado"});
         }
 
-        if (tipo === "pago" && idRemitente.saldo < monto){
-            return res.status(400).json({message: "Saldo insuficiente para realizar la transacción"});
+        if (tipo === "pago" && remitente.saldo < monto){
+            return res.status(400).json({message: "Su saldo insuficiente para realizar la transacción"});
+        } else if (tipo === "cobro" && destinatario.saldo < monto){
+            return res.status(400).json({message: `El saldo del Jugador es insuficiente para realizar la transacción`});
         }
 
         const nuevaTransaccion = new Transaccion({idRemitente, idDestinatario, idJuego, tipo, monto, turno});
@@ -48,10 +53,10 @@ exports.registrarTransaccion = async (req, res) => {
                 destinatario.saldo -= monto;
         }
 
+        }
         await remitente.save();
         if(idDestinatario !== banca_id){
-            await destinatario.save();
-        }
+        await destinatario.save();
         }
         res.status(201).json({message: "Transacción realizada exitosamente", nuevaTransaccion});
     }catch (error){
