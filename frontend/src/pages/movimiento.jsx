@@ -99,10 +99,9 @@ const Movimiento = () => {
           alert(`Movimiento registrado: ${movimiento} de ${valor} para ${entidad.nombre}`);
 
           } catch (err) {
-
           if (err) {
           alert(
-          err.message || "Error extraño registrar el movimiento"
+          (JSON.parse(err.request.response)).message || "Error al registrar el movimiento"
           );
           } else {
           alert("Error al conectar con el servidor");
@@ -198,6 +197,7 @@ const Movimiento = () => {
     >
       {jugador.nombre}
     </button>
+    <span className="self-center">➡</span>
     <button
       onClick={() => setMostrarLista(!mostrarLista)}
       className={`rounded-full border-2 text-sm flex items-center justify-center bg-black text-white  disabled:bg-gray-600`}
@@ -273,8 +273,9 @@ const Movimiento = () => {
     {/* Botones Secundarios */}
     <div className="grid grid-cols-2 gap-2 text-sm">
       <button 
-        className="bg-yellow-500 hover:bg-yellow-600 text-white py-1 rounded"
+        className="bg-yellow-500 hover:bg-yellow-600 text-white py-1 rounded disabled:bg-gray-900"
         onClick={terminarTurno} 
+        disabled = {jugador.idJugador === jugadorTurno.idJugador? false : true }
       >
         Terminar turno
       </button>

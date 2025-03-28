@@ -82,7 +82,7 @@ const Historial = () => {
           onClick={() => navigate(-1)}
           className="mt-6 bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-full"
         >
-          ⬅
+          ⬅ Volver
         </button>
       </div>
     </div>

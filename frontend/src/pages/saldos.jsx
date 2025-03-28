@@ -29,6 +29,9 @@ const SaldoJugador = () => {
     };
 
     obtenerSaldos();
+
+    const intervalo = setInterval(obtenerSaldos, 5000);
+    return () => clearInterval(intervalo);
   }, [idSala]);
 
   return (
