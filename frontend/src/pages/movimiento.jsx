@@ -155,7 +155,7 @@ const Movimiento = () => {
     useEffect(() => {
       // Verificar si el saldo del jugador turno
       if (jugadorTurno.saldo <= 0) {
-        // terminasu turno
+        // termina su turno
         terminarTurno();
       }
     }, [jugadorTurno]);
@@ -190,7 +190,7 @@ const Movimiento = () => {
 
     {/* Selector de Entidad */}
     <div className="mb-3 relative">
-  <p className="text-gray-700 text-sm">Entidad:</p>
+  <p className="text-black text-sm">Entidad:</p>
   <div className="flex justify-center gap-3 mt-1">
     <button
       className={` rounded-full border-2 text-sm flex items-center justify-center bg-black text-white disabled:bg-gray-600`} disabled
@@ -229,7 +229,7 @@ const Movimiento = () => {
 
     {/* Tipo de Movimiento */}
     <div className="mb-3" >
-      <p className="text-gray-700 text-sm">Tipo:</p>
+      <p className="text-black text-sm">Tipo:</p>
       <div className="flex justify-center gap-3 mt-1">
         <button
           onClick={() => handleMovimiento("cobro")}
@@ -249,17 +249,17 @@ const Movimiento = () => {
     </div>
 
     {/* Valor */}
-    <div className="mb-3">
-      <label className="block text-gray-700 text-sm mb-1">Valor:</label>
-      <input
-        type="number"
-        value={valor}
-        onChange={(e) => setValor(e.target.value)}
-        placeholder="$ ---"
-        className="w-full px-2 py-1 border border-gray-300 rounded-md text-center text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        disabled = {jugador.idJugador === jugadorTurno.idJugador? false : true }
-      />
-    </div>
+  <div className="mb-3">
+    <label className="block text-black text-sm mb-1">Valor:</label>
+    <input
+    type="number"
+    value={valor}
+    onChange={(e) => setValor(e.target.value)}
+    placeholder="$ ---"
+    className="w-full px-2 py-1 border border-blue-300 rounded-md text-center text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black placeholder-black"
+    disabled={jugador.idJugador === jugadorTurno.idJugador ? false : true}
+  />
+</div>
 
     {/* Botón Principal */}
     <button
